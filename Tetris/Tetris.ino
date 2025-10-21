@@ -9,10 +9,15 @@
 #define OLED_RESET    -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+// ===============================
+// CONFIGURACIÓN SENSOR FSR402
+// ===============================
+#define FSR_PIN 34           // Pin analógico donde conectas el FSR
+#define FSR_THRESHOLD 2000   // Umbral de presión para activar el movimiento
 
 // Configuración WiFi
-const char* ssid = ""; // Nombre de RED
-const char* password = "*"; // Password de RED
+const char* ssid = "Andagueda"; // Nombre de RED
+const char* password = "324213723088"; // Password de RED
 
 WebServer server(80);
 
@@ -100,7 +105,15 @@ void setup() {
 
 void loop() {
   server.handleClient();
-  
+
+  //  Sensor FSR controla botón IZQUIERDO
+  int fsrValue = analogRead(FSR_PIN);
+  if (fsrValue > FSR_THRESHOLD) {
+    Serial.println("FSR presionado → mover izquierda");
+    if (gameActive) moveLeft();
+    delay(250); // Pequeña pausa para evitar rebotes
+  }
+
   if (gameActive) {
     unsigned long currentTime = millis();
     if (currentTime - lastDropTime > dropInterval) {
